@@ -31,8 +31,8 @@ services:
     restart: always
     environment:
       MYSQL_DATABASE: 'events'
-      MYSQL_USER: 'root'
-      MYSQL_PASSWORD: 'Messi1011_12345'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: 'password'
       MYSQL_ROOT_PASSWORD: 'Messi1011_12345'
     ports:
       - '3306:3306'
