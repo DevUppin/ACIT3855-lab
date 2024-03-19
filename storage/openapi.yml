@@ -1,0 +1,159 @@
+---
+openapi: 3.0.0
+info:
+  title: Image Upload API
+  description: Image Upload Management System API
+  contact:
+    email: devuppin@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: /
+tags:
+- name: users
+  description: Operations available to end-users
+- name: moderators
+  description: Operations available to moderators
+- name: admins
+  description: Admin-only operations
+paths:
+  /user-registration:
+    get:
+      tags:
+      - users
+      summary: Get user registration events between timestamps
+      operationId: app.get_user_registration_events
+      parameters:
+        - name: start_timestamp
+          in: query
+          description: Start timestamp
+          required: true
+          schema:
+            type: string
+            format: date-time
+            example: "2016-08-29T09:12:33"
+        - name: end_timestamp
+          in: query
+          description: End timestamp
+          required: true
+          schema:
+            type: string
+            format: date-time
+            example: "2016-08-30T09:12:33"
+      responses:
+        '200':
+          description: Successfully returned a list of user registration events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserRegistrationEvent'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /image-upload:
+    get:
+      tags:
+      - users
+      summary: Get image upload events between timestamps
+      operationId: app.get_image_upload_events
+      parameters:
+        - name: start_timestamp
+          in: query
+          description: Start timestamp
+          required: true
+          schema:
+            type: string
+            format: date-time
+            example: "2016-08-29T09:12:33"
+        - name: end_timestamp
+          in: query
+          description: End timestamp
+          required: true
+          schema:
+            type: string
+            format: date-time
+            example: "2016-08-30T09:12:33"
+      responses:
+        '200':
+          description: Successfully returned a list of image upload events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ImageUploadEvent'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+components:
+  schemas:
+    UserRegistrationEvent:
+      required:
+      - email
+      - name
+      - password
+      - age
+      # - trace_id
+      type: object
+      properties:
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          format: email
+          example: john@example.com
+        password:
+          type: string
+          example: securepassword123
+        age:
+          type: integer
+          example: 22
+        # trace_id:
+        #   type: string
+        #   example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+    ImageUploadEvent:
+      required:
+      - image_file_name
+      - user_id
+      - image_type
+      - image_size
+      - trace_id
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        imageFileName:
+          type: string
+          format: name
+          example: Image.jpg
+        imageType:
+          type: string
+          format: name
+          example: .jpg
+        imageSize:
+          type: string
+          format: name
+          example: 22kb
+        trace_id:
+          type: string
+          example: "sdfnsdf5717-4562-b3fc-2c963f66afa6"
+          

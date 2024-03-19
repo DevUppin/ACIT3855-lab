@@ -1,0 +1,142 @@
+openapi: 3.0.0
+info:
+  description: This API provides audit info
+  version: "1.0.0"
+  title: Audit API
+  contact:
+    email: devuppin@gmail.com
+paths:
+  /user-registration:
+    get:
+      summary: Gets users reading from history
+      operationId: app.get_user_registration_reading
+      description: Gets user registration readings from the event store
+      parameters:
+        - name: index
+          in: query
+          description: Gets the user information at the index in the event store
+          schema:
+            type: integer
+            example: 100
+      responses:
+        '200':
+          description: Successfully returned a user registration event
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/UserRegistrationReading'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /image-upload:
+    get:
+      summary: Gets a uploaded image info reading from history
+      operationId: app.get_image_upload_reading
+      description: Gets image upload reading from the event store
+      parameters:
+        - name: index
+          in: query
+          description: Gets the image upload info at the index in the event store
+          schema:
+            type: integer
+            example: 100
+      responses:
+        '200':
+          description: Successfully returned a image upload event
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: '#/components/schemas/ImageUploadReading'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+
+components:
+  schemas:
+    UserRegistrationReading:
+      required:
+      - email
+      - name
+      - password
+      - age
+      # - trace_id
+      type: object
+      properties:
+        name:
+          type: string
+          example: John Doe
+        email:
+          type: string
+          format: email
+          example: john@example.com
+        password:
+          type: string
+          example: securepassword123
+        age:
+          type: integer
+          example: 22
+        # trace_id:
+        #   type: string
+        #   example: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+    ImageUploadReading:
+      required:
+      - image_file_name
+      - user_id
+      - image_type
+      - image_size
+      - trace_id
+      type: object
+      properties:
+        userId:
+          type: string
+          format: uuid
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        imageFileName:
+          type: string
+          format: name
+          example: Image.jpg
+        imageType:
+          type: string
+          format: name
+          example: .jpg
+        imageSize:
+          type: string
+          format: name
+          example: 22kb
+        trace_id:
+          type: string
+          example: "sdfnsdf5717-4562-b3fc-2c963f66afa6"

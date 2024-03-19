@@ -1,0 +1,9 @@
+version: 1
+userRegistration:
+  url: http://localhost:8090/user-registration
+imageUpload:
+  url: http://localhost:8090/image-upload
+events:
+  hostname: acit-3855-lab6-duppin.westus3.cloudapp.azure.com
+  port: 9092
+  topic: events
