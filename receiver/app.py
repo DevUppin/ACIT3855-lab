@@ -26,9 +26,9 @@ with open('log_conf.yml', 'r') as f:
 
 logger = logging.getLogger('basicLogger')
 
-client = KafkaClient(hosts=f'{kafka_server}:{kafka_port}')
-topic = client.topics[str.encode(topic)]
-producer = topic.get_sync_producer()
+# client = KafkaClient(hosts=f'{kafka_server}:{kafka_port}')
+# topic = client.topics[str.encode(topic)]
+# producer = topic.get_sync_producer()
 
 # max_events = 5
 # event_file = 'events.json'
@@ -59,6 +59,9 @@ def registerUser(body):
     """
     Register a new user
     """
+    client = KafkaClient(hosts=f'{kafka_server}:{kafka_port}')
+    topic = client.topics[str.encode(topic)]
+    producer = topic.get_sync_producer()
     trace_id = str(uuid.uuid4())  # Generate a unique trace_id
     logger.info(f"Received event user_registration request with a trace id of {trace_id}")
     body['trace_id'] = trace_id
@@ -79,6 +82,9 @@ def uploadImage(body):
     """
     Upload an image
     """
+    client = KafkaClient(hosts=f'{kafka_server}:{kafka_port}')
+    topic = client.topics[str.encode(topic)]
+    producer = topic.get_sync_producer()
     trace_id = str(uuid.uuid4())  # Generate a unique trace_id
     logger.info(f"Received event image_upload request with a trace id of {trace_id}")
     body['trace_id'] = trace_id 
