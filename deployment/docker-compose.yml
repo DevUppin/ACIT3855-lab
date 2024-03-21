@@ -1,6 +1,36 @@
 version: '3.3'
 
 services:
+  receiver:
+    image: receiver:latest
+    ports:
+      - "8080:8080"
+    depends_on:
+      - kafka
+      # - db
+
+  storage:
+    image: storage:latest
+    ports:
+      - "8090:8090"
+    depends_on:
+      - db
+      - kafka
+
+  processor:
+    image: processing:latest
+    ports:
+      - "8100:8100"
+    depends_on:
+      - storage
+
+  audit_log:
+    image: audit_log:latest
+    ports:
+      - "8110:8110"
+    depends_on:
+      - kafka
+
   zookeeper:
     image: wurstmeister/zookeeper
     ports:
@@ -24,7 +54,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
-      - "zookeeper"
+      - zookeeper
 
   db:
     image: mysql:5.7
