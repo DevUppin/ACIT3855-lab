@@ -16,6 +16,7 @@ from flask import jsonify
 # from dateutil import parser
 # from datetime import datetime
 import pytz
+from sqlalchemy.orm import scoped_session
 
 with open('app_conf.yml', 'r') as f:
     app_config = yaml.safe_load(f.read())
@@ -25,7 +26,7 @@ with open('app_conf.yml', 'r') as f:
 
 DB_ENGINE = create_engine("sqlite:///%s" % app_config["datastore"]["filename"])
 Base.metadata.bind = DB_ENGINE
-DB_SESSION = sessionmaker(bind=DB_ENGINE)
+DB_SESSION = scoped_session(sessionmaker(bind=DB_ENGINE))
 session = DB_SESSION()
 
 
