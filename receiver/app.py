@@ -18,7 +18,7 @@ user_Registration = app_config['userRegistration']['url']
 image_Upload = app_config['imageUpload']['url']
 kafka_server = app_config['events']['hostname']
 kafka_port = app_config['events']['port']
-topic = app_config['events']['topic']
+topic_events = app_config['events']['topic']
 
 with open('log_conf.yml', 'r') as f:
     log_config = yaml.safe_load(f.read())
@@ -60,7 +60,7 @@ def registerUser(body):
     Register a new user
     """
     client = KafkaClient(hosts=f'{kafka_server}:{kafka_port}')
-    topic = client.topics[str.encode(topic)]
+    topic = client.topics[str.encode(topic_events)]
     producer = topic.get_sync_producer()
     trace_id = str(uuid.uuid4())  # Generate a unique trace_id
     logger.info(f"Received event user_registration request with a trace id of {trace_id}")
@@ -83,7 +83,7 @@ def uploadImage(body):
     Upload an image
     """
     client = KafkaClient(hosts=f'{kafka_server}:{kafka_port}')
-    topic = client.topics[str.encode(topic)]
+    topic = client.topics[str.encode(topic_events)]
     producer = topic.get_sync_producer()
     trace_id = str(uuid.uuid4())  # Generate a unique trace_id
     logger.info(f"Received event image_upload request with a trace id of {trace_id}")
