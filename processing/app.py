@@ -16,7 +16,7 @@ from flask import jsonify
 # from dateutil import parser
 # from datetime import datetime
 import pytz
-from sqlalchemy.orm import scoped_session
+# from sqlalchemy.orm import scoped_session
 
 with open('app_conf.yml', 'r') as f:
     app_config = yaml.safe_load(f.read())
@@ -26,8 +26,8 @@ with open('app_conf.yml', 'r') as f:
 
 DB_ENGINE = create_engine("sqlite:///%s" % app_config["datastore"]["filename"])
 Base.metadata.bind = DB_ENGINE
-DB_SESSION = scoped_session(sessionmaker(bind=DB_ENGINE))
-session = DB_SESSION()
+DB_SESSION = sessionmaker(bind=DB_ENGINE)
+# session = DB_SESSION()
 
 
 with open('log_conf.yml', 'r') as f:
@@ -42,10 +42,14 @@ def populate_stats():
     logger.info("Start Periodic Processing")
 
     try:
+        session = DB_SESSION()
         current_stats = session.query(Stats).order_by(Stats.last_update.desc()).first()
     except Exception as e:
         logger.error(f"Error reading current statistics from the database: {e}")
         current_stats = None  
+    finally:
+        if session:
+            session.close()
 
     if not current_stats:
         current_stats = Stats(
@@ -55,8 +59,10 @@ def populate_stats():
         num_of_same_filetype_reading=0,
         last_update=datetime.datetime.now(pytz.utc)
     )
+        session = DB_SESSION()
         session.add(current_stats)
         session.commit()
+        session.close()
 
     last_updated_time = current_stats.last_update
     if isinstance(last_updated_time, datetime.datetime):
@@ -119,9 +125,10 @@ def populate_stats():
             num_of_same_filetype_reading=total_num_same_file_type,
             last_update=current_datetime_obj
             )
-            
+            session = DB_SESSION()
             session.add(new_stats)
             session.commit()
+            session.closee()
 
             logger.debug(f"Updated statistics: {current_stats.to_dict()}")
         else:
@@ -138,7 +145,10 @@ def get_stats():
     logger.info("Request for statistics has started")
 
     try:
+        session = DB_SESSION()
         current_stats = session.query(Stats).order_by(Stats.last_update.desc()).first()
+        session.commit()
+        session.close()
         
         if not current_stats:
             logger.error("Statistics do not exist")
