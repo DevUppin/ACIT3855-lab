@@ -13,7 +13,7 @@ import mysql.connector
 from apscheduler.schedulers.background import BackgroundScheduler
 from stats import Stats, Base
 from flask import jsonify
-from dateutil import parser
+# from dateutil import parser
 # from datetime import datetime
 
 with open('app_conf.yml', 'r') as f:
