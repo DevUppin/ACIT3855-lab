@@ -137,19 +137,19 @@ components:
       - trace_id
       type: object
       properties:
-        userId:
+        user_id:
           type: string
           format: uuid
           example: d290f1ee-6c54-4b01-90e6-d701748f0851
-        imageFileName:
+        image_file_name:
           type: string
           format: name
           example: Image.jpg
-        imageType:
+        image_type:
           type: string
           format: name
           example: .jpg
-        imageSize:
+        image_size:
           type: string
           format: name
           example: 22kb
