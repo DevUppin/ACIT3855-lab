@@ -239,7 +239,7 @@ def populate_stats():
             num_image_upload_events=0,
             max_age_readings=0,
             num_of_same_filetype_reading=0,
-            last_update=datetime.datetime.now(pytz.utc)
+            last_update=datetime.datetime.now()
             )
 
         session.add(current_stats)
@@ -251,7 +251,7 @@ def populate_stats():
             print(formatted_last_update)
         else:
             print("last_update is not a datetime object")
-        current_datetime_obj = datetime.datetime.now(pytz.utc)
+        current_datetime_obj = datetime.datetime.now()
         current_datetime = current_datetime_obj.strftime("%Y-%m-%dT%H:%M:%S")
         print(type(current_datetime))
         try:
