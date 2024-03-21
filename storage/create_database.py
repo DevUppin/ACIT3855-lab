@@ -28,7 +28,7 @@ class UserRegistrationEvent(Base):
     age = Column(Integer)
     # date_created = Column(DateTime, default=datetime.datetime.utcnow)
     trace_id = Column(String(length=100))
-    date_created = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
+    date_created = Column(DateTime, default=datetime.datetime.now, nullable=False)
 
     
     def to_dict(self):
@@ -51,7 +51,7 @@ class ImageUploadEvent(Base):
     image_size = Column(String(length=10))
     # date_created = Column(DateTime, default=datetime.datetime.utcnow)
     trace_id = Column(String(length=100))
-    date_created = Column(DateTime, default=datetime.datetime.utcnow, nullable=False)
+    date_created = Column(DateTime, default=datetime.datetime.now, nullable=False)
 
 
     
