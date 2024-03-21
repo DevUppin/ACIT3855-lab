@@ -23,8 +23,7 @@ logger = logging.getLogger('basicLogger')
 # kafka_host = f"{kafka_config['hostname']}:{kafka_config['port']}"
 # kafka_topic = kafka_config['topic']
 
-app = connexion.FlaskApp(__name__, specification_dir='')
-app.add_api("openapi.yml")
+
 
 def get_user_registration_reading(index):
     """ Get User Registration Reading in History """
@@ -91,6 +90,9 @@ def get_image_upload_reading(index):
         logger.error("No more messages found")
         logger.error("Could not find image upload reading at index %d" % index)
         return {"message": "Not Found"}, 404
+
+app = connexion.FlaskApp(__name__, specification_dir='')
+app.add_api("openapi.yml")
 
 if __name__ == "__main__":
     app.run(port=8110)
