@@ -8,7 +8,7 @@ ENV PATH /app/node_modules/.bin:$PATH
 
 # Install app dependencies
 COPY "Sample Code/package.json" ./
-COPY "Sample Codepackage-lock.json" ./
+COPY "Sample Code/package-lock.json" ./
 RUN npm install
 RUN npm install react-scripts@3.4.1 -g
 
