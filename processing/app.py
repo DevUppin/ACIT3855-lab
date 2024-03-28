@@ -203,8 +203,8 @@ from flask_cors import CORS
 # from dateutil import parser
 # from datetime import datetime
 import pytz
-from connexion.middleware import MiddlewarePosition
-from starlette.middleware.cors import CORSMiddleware
+# from connexion.middleware import MiddlewarePosition
+# from starlette.middleware.cors import CORSMiddleware
 # from sqlalchemy.orm import scoped_session
 
 with open('app_conf.yml', 'r') as f:

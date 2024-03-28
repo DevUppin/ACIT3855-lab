@@ -5,8 +5,8 @@ import json
 import logging.config
 from pykafka import KafkaClient
 from pykafka.common import OffsetType
-from connexion.middleware import MiddlewarePosition
-from starlette.middleware.cors import CORSMiddleware
+# from connexion.middleware import MiddlewarePosition
+# from starlette.middleware.cors import CORSMiddleware
 from flask_cors import CORS
 
 with open('app_conf.yml', 'r') as f:
