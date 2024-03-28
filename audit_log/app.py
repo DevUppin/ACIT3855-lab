@@ -5,6 +5,8 @@ import json
 import logging.config
 from pykafka import KafkaClient
 from pykafka.common import OffsetType
+from connexion.middleware import MiddlewarePosition
+from starlette.middleware.cors import CORSMiddleware
 
 with open('app_conf.yml', 'r') as f:
     app_config = yaml.safe_load(f.read())
@@ -92,6 +94,15 @@ def get_image_upload_reading(index):
         return {"message": "Not Found"}, 404
 
 app = connexion.FlaskApp(__name__, specification_dir='')
+app.add_middleware(
+    CORSMiddleware,
+    position=MiddlewarePosition.BEFORE_EXCEPTION,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+
 app.add_api("openapi.yml")
 
 if __name__ == "__main__":
