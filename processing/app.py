@@ -199,6 +199,7 @@ import mysql.connector
 from apscheduler.schedulers.background import BackgroundScheduler
 from stats import Stats, Base
 from flask import jsonify
+from flask_cors import CORS
 # from dateutil import parser
 # from datetime import datetime
 import pytz
@@ -363,16 +364,18 @@ def init_scheduler():
 
 
 app = connexion.FlaskApp(__name__, specification_dir='')
+CORS(app.app)
+app.app.config['CORS_HEADERS'] = 'Content-Type'
     
 
-app.add_middleware(
-    CORSMiddleware,
-    position=MiddlewarePosition.BEFORE_EXCEPTION,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"]
-)
+# app.add_middleware(
+#     CORSMiddleware,
+#     position=MiddlewarePosition.BEFORE_EXCEPTION,
+#     allow_origins=["*"],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"]
+# )
 app.add_api("openapi.yml")
 strict_validation = True
 validate_responses = True
