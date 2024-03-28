@@ -43,7 +43,7 @@ export default function AppStats() {
 							<td># IU: {stats['num_image_upload_events']}</td>
 						</tr>
 						<tr>
-							<td colspan="2">Max Age: {stats['max_age_reading']}</td>
+							<td colspan="2">Max Age: {stats['max_age_readings']}</td>
 						</tr>
 						<tr>
 							<td colspan="2">Number of same filetype('.jpg'): {stats['num_of_same_filetype_reading']}</td>
