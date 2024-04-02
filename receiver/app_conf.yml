@@ -7,3 +7,4 @@ events:
   hostname: acit-3855-lab6-duppin.westus3.cloudapp.azure.com
   port: 9092
   topic: events
+max_retries: 3

@@ -9,6 +9,7 @@ import uuid
 import requests
 from sqlalchemy import create_engine
 from pykafka import KafkaClient
+import time
 
 with open('app_conf.yml', 'r') as f:
     app_config = yaml.safe_load(f.read())
@@ -55,13 +56,41 @@ logger = logging.getLogger('basicLogger')
 #     with open(event_file, 'w') as file:
 #         json.dump(event_data, file, indent=2)
 
+client = None
+producer = None
+
+def connect_to_kafka():
+    """Connect to Kafka"""
+    global client, producer
+    max_retries = app_config['max_retries']
+    current_retry = 0
+    while current_retry < max_retries:
+        try:
+            client = KafkaClient(hosts=f'{kafka_server}:{kafka_port}')
+            topic = client.topics[str.encode(topic_events)]
+            producer = topic.get_sync_producer()
+            logger.info("Connected to Kafka")
+            break  # Exit loop if connection successful
+        except Exception as e:
+            logger.error(f"Error connecting to Kafka: {e}")
+            current_retry += 1
+            logger.info(f"Retrying connection to Kafka. Retry count: {current_retry}")
+            time.sleep(5)  # Wait for 5 seconds before retrying
+
+    if current_retry == max_retries:
+        logger.error("Failed to connect to Kafka after maximum retries. Exiting.")
+        exit(1)
+
+connect_to_kafka()
+
+
 def registerUser(body):
     """
     Register a new user
     """
-    client = KafkaClient(hosts=f'{kafka_server}:{kafka_port}')
-    topic = client.topics[str.encode(topic_events)]
-    producer = topic.get_sync_producer()
+    # client = KafkaClient(hosts=f'{kafka_server}:{kafka_port}')
+    # topic = client.topics[str.encode(topic_events)]
+    # producer = topic.get_sync_producer()
     trace_id = str(uuid.uuid4())  # Generate a unique trace_id
     logger.info(f"Received event user_registration request with a trace id of {trace_id}")
     body['trace_id'] = trace_id
@@ -81,10 +110,10 @@ def registerUser(body):
 def uploadImage(body):
     """
     Upload an image
-    """
-    client = KafkaClient(hosts=f'{kafka_server}:{kafka_port}')
-    topic = client.topics[str.encode(topic_events)]
-    producer = topic.get_sync_producer()
+    # """
+    # client = KafkaClient(hosts=f'{kafka_server}:{kafka_port}')
+    # topic = client.topics[str.encode(topic_events)]
+    # producer = topic.get_sync_producer()
     trace_id = str(uuid.uuid4())  # Generate a unique trace_id
     logger.info(f"Received event image_upload request with a trace id of {trace_id}")
     body['trace_id'] = trace_id 

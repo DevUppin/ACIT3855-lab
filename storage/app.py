@@ -14,6 +14,7 @@ import mysql.connector
 from pykafka import KafkaClient
 from pykafka.common import OffsetType
 from threading import Thread
+import time
 
 
 with open('app_conf.yml', 'r') as f:
@@ -181,37 +182,92 @@ def get_image_upload_events(start_timestamp, end_timestamp):
                 (start_timestamp, end_timestamp, len(results_list)))
     return results_list, 200
 
+# def process_messages():
+#     """ Process event messages """
+#     hostname = "%s:%d" % (app_config["events"]["hostname"], app_config["events"]["port"])
+#     client = KafkaClient(hosts=hostname)
+#     topic = client.topics[str.encode(app_config["events"]["topic"])]
+
+#     # Create a consumer on a consumer group, that only reads new messages
+#     # (uncommitted messages) when the service re-starts (i.e., it doesn't
+#     # read all the old messages from the history in the message queue).
+#     consumer = topic.get_simple_consumer(consumer_group=b'event_group',
+#                                          reset_offset_on_start=False,
+#                                          auto_offset_reset=OffsetType.LATEST)
+
+#     # This is blocking - it will wait for a new message
+#     for msg in consumer:
+#         msg_str = msg.value.decode('utf-8')
+#         msg = json.loads(msg_str)
+#         logger.info("Message: %s" % msg)
+#         payload = msg["payload"]
+
+#         if msg["type"] == "user_registration":  # Change this to your event type
+#             # Store the event1 (i.e., the payload) to the DB
+#             store_user_registration(payload)
+#             logger.info(f"{msg['type']} event has been added")
+#         elif msg["type"] == "image_upload":  # Change this to your event type
+#             # Store the event2 (i.e., the payload) to the DB
+#             store_image_upload(payload)
+#             logger.info(f"{msg['type']} event has been added")
+
+#         # Commit the new message as being read
+#         consumer.commit_offsets()
+
+
+
 def process_messages():
     """ Process event messages """
     hostname = "%s:%d" % (app_config["events"]["hostname"], app_config["events"]["port"])
-    client = KafkaClient(hosts=hostname)
-    topic = client.topics[str.encode(app_config["events"]["topic"])]
+    
+    # Define retry parameters
+    max_retries = app_config["max_retries"]  # Maximum number of retries
+    current_retry = 0
+    
+    while current_retry < max_retries:
+        try:
+            client = KafkaClient(hosts=hostname)
+            topic = client.topics[str.encode(app_config["events"]["topic"])]
 
-    # Create a consumer on a consumer group, that only reads new messages
-    # (uncommitted messages) when the service re-starts (i.e., it doesn't
-    # read all the old messages from the history in the message queue).
-    consumer = topic.get_simple_consumer(consumer_group=b'event_group',
-                                         reset_offset_on_start=False,
-                                         auto_offset_reset=OffsetType.LATEST)
+            # Create a consumer on a consumer group, that only reads new messages
+            # (uncommitted messages) when the service re-starts (i.e., it doesn't
+            # read all the old messages from the history in the message queue).
+            consumer = topic.get_simple_consumer(consumer_group=b'event_group',
+                                                 reset_offset_on_start=False,
+                                                 auto_offset_reset=OffsetType.LATEST)
 
-    # This is blocking - it will wait for a new message
-    for msg in consumer:
-        msg_str = msg.value.decode('utf-8')
-        msg = json.loads(msg_str)
-        logger.info("Message: %s" % msg)
-        payload = msg["payload"]
+            # This is blocking - it will wait for a new message
+            for msg in consumer:
+                msg_str = msg.value.decode('utf-8')
+                msg = json.loads(msg_str)
+                logger.info("Message: %s" % msg)
+                payload = msg["payload"]
 
-        if msg["type"] == "user_registration":  # Change this to your event type
-            # Store the event1 (i.e., the payload) to the DB
-            store_user_registration(payload)
-            logger.info(f"{msg['type']} event has been added")
-        elif msg["type"] == "image_upload":  # Change this to your event type
-            # Store the event2 (i.e., the payload) to the DB
-            store_image_upload(payload)
-            logger.info(f"{msg['type']} event has been added")
+                if msg["type"] == "user_registration":  # Change this to your event type
+                    # Store the event1 (i.e., the payload) to the DB
+                    store_user_registration(payload)
+                    logger.info(f"{msg['type']} event has been added")
+                elif msg["type"] == "image_upload":  # Change this to your event type
+                    # Store the event2 (i.e., the payload) to the DB
+                    store_image_upload(payload)
+                    logger.info(f"{msg['type']} event has been added")
 
-        # Commit the new message as being read
-        consumer.commit_offsets()
+                # Commit the new message as being read
+                consumer.commit_offsets()
+                
+        except Exception as e:
+            # Handle exception and retry
+            logger.error(f"Error connecting to Kafka: {e}")
+            current_retry += 1
+            logger.info(f"Retrying connection to Kafka. Retry count: {current_retry}")
+            time.sleep(5)  # Sleep for 5 seconds before retrying
+        else:
+            # No exception occurred, break out of the loop
+            break
+
+    # If reached here, maximum retries exhausted without successful connection
+    logger.error("Unable to connect to Kafka after maximum retries. Exiting.")
+
 
 def store_user_registration(payload):
     session = MySQLSession()
