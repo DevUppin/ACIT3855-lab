@@ -241,6 +241,7 @@ def process_messages():
                                                  auto_offset_reset=OffsetType.LATEST)
 
             # This is blocking - it will wait for a new message
+            logger.info(f"Connected to kafka")
             for msg in consumer:
                 msg_str = msg.value.decode('utf-8')
                 msg = json.loads(msg_str)
