@@ -26,7 +26,11 @@ db_hostname = app_config['datastore']['hostname']
 db_port = app_config['datastore']['port']
 db_name = app_config['datastore']['db']
 
-mysql_engine = create_engine(f'mysql+pymysql://{db_user}:{db_password}@{db_hostname}:{db_port}/{db_name}')
+# mysql_engine = create_engine(f'mysql+pymysql://{db_user}:{db_password}@{db_hostname}:{db_port}/{db_name}')
+DATABASE_URI = f'mysql+pymysql://{db_user}:{db_password}@{db_hostname}:{db_port}/{db_name}'
+
+mysql_engine = create_engine(DATABASE_URI, pool_size=10,
+                       pool_recycle=3000, pool_pre_ping=True)
 MySQLSession = sessionmaker(bind=mysql_engine)
 
 sqlite_engine = create_engine('sqlite:///storage.db', echo=True)
