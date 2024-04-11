@@ -7,8 +7,8 @@ cursor = conn.cursor()
 # Create table if not exists
 cursor.execute('''CREATE TABLE event_logs (
                     id INTEGER PRIMARY KEY,
-                    message TEXT NOT NULL,
-                    message_code TEXT NOT NULL,
+                    message VARCHAR(500) NOT NULL,
+                    message_code VARCHAR(200) NOT NULL,
                     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )''')
 conn.commit()
