@@ -38,6 +38,7 @@ def process_message(msg):
         # Create a new session
         session = DB_SESSION()
         # Create new event log object
+        logger.info("Message: %s" % msg)
         event_log = Stats(message_text=msg['message'], message_code=msg['message_code'], timestamp=datetime.datetime.now())
         # Add to session and commit
         session.add(event_log)
