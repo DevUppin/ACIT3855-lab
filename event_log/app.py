@@ -91,7 +91,7 @@ def connect_to_kafka():
     # If reached here, maximum retries exhausted without successful connection
     logger.error("Unable to connect to Kafka after maximum retries. Exiting.")
 
-connect_to_kafka()
+# connect_to_kafka()
 
     # try:
     #     insert_event_log(msg['message'], msg['message_code'])
