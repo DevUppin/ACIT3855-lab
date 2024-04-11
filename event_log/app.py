@@ -76,6 +76,7 @@ def connect_to_kafka():
     # If reached here, maximum retries exhausted without successful connection
     logger.error("Unable to connect to Kafka after maximum retries. Exiting.")
 
+connect_to_kafka()
 
 def process_message(msg):
     try:
@@ -111,6 +112,7 @@ def get_event_stats():
     try:
         session = DB_SESSION()
         event_stats = session.query(Stats.message_code, func.count(Stats.id)).group_by(Stats.message_code).all()
+        logger.info("Gathered Stats")
         return {code: count for code, count in event_stats}
     except Exception as e:
         logger.error(f"Error getting event stats: {e}")
@@ -128,7 +130,8 @@ def get_event_stats():
 # Route to get event stats
 def events_stats():
     event_stats = get_event_stats()
-    return jsonify(event_stats)
+    logger.info("recieved stats")
+    return jsonify(event_stats), 201
 
 
 
