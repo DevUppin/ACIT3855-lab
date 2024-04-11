@@ -55,6 +55,7 @@
 
 import json
 import logging
+import logging.config
 import yaml
 from pykafka import KafkaClient
 from pykafka.common import OffsetType
