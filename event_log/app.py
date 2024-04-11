@@ -76,8 +76,8 @@ with open('log_conf.yml', 'r') as f:
 # Create logger
 logger = logging.getLogger('basicLogger')
 
-conn = sqlite3.connect('event_logs.db')
-cursor = conn.cursor()
+# conn = sqlite3.connect('event_logs.db')
+# cursor = conn.cursor()
 
 def connect_to_kafka():
     hostname = "%s:%d" % (app_config["kafka"]["hostname"], app_config["kafka"]["port"])
@@ -132,6 +132,8 @@ def process_message(msg):
 
 # Function to insert event log into SQLite database
 def insert_event_log(message, message_code):
+    conn = sqlite3.connect('event_logs.db')  # Create a new connection
+    cursor = conn.cursor()  # Create a new cursor
     cursor.execute('''INSERT INTO event_logs (message, message_code) 
                       VALUES (?, ?)''', (message, message_code))
     conn.commit()
@@ -139,6 +141,8 @@ def insert_event_log(message, message_code):
 
 # Function to get event stats
 def get_event_stats():
+    conn = sqlite3.connect('event_logs.db')  # Create a new connection
+    cursor = conn.cursor()  # Create a new cursor
     cursor.execute('''SELECT message_code, COUNT(*) FROM event_logs GROUP BY message_code''')
     rows = cursor.fetchall()
     event_stats = {row[0]: row[1] for row in rows}
