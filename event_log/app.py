@@ -73,7 +73,7 @@ def connect_to_kafka():
                 msg = json.loads(msg_str)
                 logger.info("Message: %s" % msg)
                 # Process the message as needed
-                process_message(msg)
+                process_message(msg['payload'])
                 # Commit the new message as being read
                 consumer.commit_offsets()
                 
