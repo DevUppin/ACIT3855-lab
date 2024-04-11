@@ -1,58 +1,3 @@
-# from flask import Flask, jsonify
-# from pykafka import KafkaClient
-# from pykafka.common import OffsetType
-# import logging
-# import sqlite3
-# import json
-
-# app = Flask(__name__)
-
-# # Configure logging
-# logging.basicConfig(filename='event_logger.log', level=logging.INFO)
-
-# # Connect to SQLite database
-# conn = sqlite3.connect('event_logs.db')
-# cursor = conn.cursor()
-
-# # Kafka consumer setup
-# consumer = KafkaConsumer('event_log',
-#                          bootstrap_servers=['localhost:9092'],
-#                          auto_offset_reset='earliest',
-#                          group_id='event_logger_group')
-
-# # Function to insert event log into SQLite database
-# def insert_event_log(message, message_code):
-#     cursor.execute('''INSERT INTO event_logs (message, message_code) 
-#                       VALUES (?, ?)''', (message, message_code))
-#     conn.commit()
-
-# # Function to get event stats
-# def get_event_stats():
-#     cursor.execute('''SELECT message_code, COUNT(*) FROM event_logs GROUP BY message_code''')
-#     rows = cursor.fetchall()
-#     event_stats = {row[0]: row[1] for row in rows}
-#     return event_stats
-
-# # Route to get event stats
-# @app.route('/events_stats')
-# def events_stats():
-#     event_stats = get_event_stats()
-#     return jsonify(event_stats)
-
-# # Function to consume messages from Kafka and process them
-# def consume_messages():
-#     for message in consumer:
-#         try:
-#             msg_data = json.loads(message.value.decode('utf-8'))
-#             logging.info(f"Received message: {msg_data}")
-#             insert_event_log(msg_data['message'], msg_data['message_code'])
-#         except Exception as e:
-#             logging.error(f"Error processing message: {e}")
-
-# if __name__ == '__main__':
-#     consume_messages()
-
-
 import json
 import logging
 import logging.config
@@ -65,6 +10,11 @@ import sqlite3
 import connexion
 from connexion import NoContent
 from flask import jsonify
+from sqlalchemy import create_engine, and_
+from sqlalchemy.orm import sessionmaker
+from stats import Stats, Base
+import datetime
+from sqlalchemy import Column, Integer, DateTime, func, String
 
 with open('app_conf.yml', 'r') as f:
     app_config = yaml.safe_load(f.read())
@@ -72,6 +22,10 @@ with open('app_conf.yml', 'r') as f:
 with open('log_conf.yml', 'r') as f:
     log_config = yaml.safe_load(f.read())
     logging.config.dictConfig(log_config)
+
+DB_ENGINE = create_engine("sqlite:///%s" % app_config["datastore"]["filename"])
+Base.metadata.bind = DB_ENGINE
+DB_SESSION = sessionmaker(bind=DB_ENGINE)
 
 # Create logger
 logger = logging.getLogger('basicLogger')
@@ -125,28 +79,48 @@ def connect_to_kafka():
 
 def process_message(msg):
     try:
-        insert_event_log(msg['message'], msg['message_code'])
+        # Create a new session
+        session = DB_SESSION()
+        # Create new event log object
+        event_log = Stats(message_text=msg['message'], message_code=msg['message_code'], timestamp=datetime.datetime.now())
+        # Add to session and commit
+        session.add(event_log)
+        session.commit()
     except Exception as e:
         logger.error(f"Error processing message: {e}")
+    finally:
+        session.close()
+    # try:
+    #     insert_event_log(msg['message'], msg['message_code'])
+    # except Exception as e:
+    #     logger.error(f"Error processing message: {e}")
 
 
 # Function to insert event log into SQLite database
-def insert_event_log(message, message_code):
-    conn = sqlite3.connect('event_logs.db')  # Create a new connection
-    cursor = conn.cursor()  # Create a new cursor
-    cursor.execute('''INSERT INTO event_logs (message, message_code) 
-                      VALUES (?, ?)''', (message, message_code))
-    conn.commit()
+# def insert_event_log(message, message_code):
+#     session = DB_SESSION()
+#     # conn = sqlite3.connect('event_logs.db')  # Create a new connection
+#     cursor = conn.cursor()  # Create a new cursor
+#     cursor.execute('''INSERT INTO event_logs (message, message_code) 
+#                       VALUES (?, ?)''', (message, message_code))
+#     conn.commit()
 
 
 # Function to get event stats
 def get_event_stats():
-    conn = sqlite3.connect('event_logs.db')  # Create a new connection
-    cursor = conn.cursor()  # Create a new cursor
-    cursor.execute('''SELECT message_code, COUNT(*) FROM event_logs GROUP BY message_code''')
-    rows = cursor.fetchall()
-    event_stats = {row[0]: row[1] for row in rows}
-    return event_stats
+    try:
+        with DB_SESSION() as session:
+            event_stats = session.query(Stats.message_code, func.count(Stats.id)).group_by(Stats.message_code).all()
+            return {code: count for code, count in event_stats}
+    except Exception as e:
+        logger.error(f"Error getting event stats: {e}")
+        return {}
+    # conn = sqlite3.connect('event_logs.db')  # Create a new connection
+    # cursor = conn.cursor()  # Create a new cursor
+    # cursor.execute('''SELECT message_code, COUNT(*) FROM event_logs GROUP BY message_code''')
+    # rows = cursor.fetchall()
+    # event_stats = {row[0]: row[1] for row in rows}
+    # return event_stats
 
 
 # Route to get event stats

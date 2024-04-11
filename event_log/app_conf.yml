@@ -10,3 +10,5 @@ events:
   port: 9092
   topic: event_log
 max_retries: 3
+datastore:
+  filename: event_logs.db
