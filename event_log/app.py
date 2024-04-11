@@ -109,12 +109,14 @@ def process_message(msg):
 # Function to get event stats
 def get_event_stats():
     try:
-        with DB_SESSION() as session:
-            event_stats = session.query(Stats.message_code, func.count(Stats.id)).group_by(Stats.message_code).all()
-            return {code: count for code, count in event_stats}
+        session = DB_SESSION()
+        event_stats = session.query(Stats.message_code, func.count(Stats.id)).group_by(Stats.message_code).all()
+        return {code: count for code, count in event_stats}
     except Exception as e:
         logger.error(f"Error getting event stats: {e}")
         return {}
+    finally:
+        session.close()
     # conn = sqlite3.connect('event_logs.db')  # Create a new connection
     # cursor = conn.cursor()  # Create a new cursor
     # cursor.execute('''SELECT message_code, COUNT(*) FROM event_logs GROUP BY message_code''')
