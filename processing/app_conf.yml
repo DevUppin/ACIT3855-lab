@@ -13,3 +13,4 @@ events:
   topic1: events
   topic2: event_log
 threshold: 25
+max_retries: 3
