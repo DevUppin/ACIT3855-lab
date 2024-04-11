@@ -14,7 +14,8 @@ class Stats(Base):
 
     def __init__(self, message_text, message_code, timestamp):
         """ Initializes a processing statistics object """
-        self.message_text = message_text
+        self.message = message_text
+
         self.message_code = message_code
         self.timestamp = timestamp
 
