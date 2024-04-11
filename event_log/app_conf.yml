@@ -5,7 +5,7 @@ datastore:
   hostname: acit-3855-lab6-duppin.westus3.cloudapp.azure.com
   port: 3306
   db: events
-events:
+kafka:
   hostname: acit-3855-lab6-duppin.westus3.cloudapp.azure.com
   port: 9092
   topic: event_log
