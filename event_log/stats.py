@@ -5,7 +5,7 @@ Base = declarative_base()
 
 class Stats(Base):
     """ Processing Statistics """
-    __tablename__ = "stats"
+    __tablename__ = "event_logs"
     
     id = Column(Integer, primary_key=True)
     message = Column(String, nullable=False)
