@@ -33,6 +33,20 @@ logger = logging.getLogger('basicLogger')
 # conn = sqlite3.connect('event_logs.db')
 # cursor = conn.cursor()
 
+def process_message(msg):
+    try:
+        # Create a new session
+        session = DB_SESSION()
+        # Create new event log object
+        event_log = Stats(message_text=msg['message'], message_code=msg['message_code'], timestamp=datetime.datetime.now())
+        # Add to session and commit
+        session.add(event_log)
+        session.commit()
+    except Exception as e:
+        logger.error(f"Error processing message: {e}")
+    finally:
+        session.close()
+
 def connect_to_kafka():
     hostname = "%s:%d" % (app_config["kafka"]["hostname"], app_config["kafka"]["port"])
 
@@ -78,19 +92,6 @@ def connect_to_kafka():
 
 connect_to_kafka()
 
-def process_message(msg):
-    try:
-        # Create a new session
-        session = DB_SESSION()
-        # Create new event log object
-        event_log = Stats(message_text=msg['message'], message_code=msg['message_code'], timestamp=datetime.datetime.now())
-        # Add to session and commit
-        session.add(event_log)
-        session.commit()
-    except Exception as e:
-        logger.error(f"Error processing message: {e}")
-    finally:
-        session.close()
     # try:
     #     insert_event_log(msg['message'], msg['message_code'])
     # except Exception as e:
