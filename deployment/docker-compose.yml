@@ -33,12 +33,19 @@ services:
       - kafka
 
   dashboard:
-    image: dashboard
+    image: dashboard:latest
     ports:
       - "3000:3000"
     depends_on:
       - "processor"
       - "audit_log"
+  
+  event_log:
+    image: event_log:latest
+    port:
+      - "8120:8120"
+    depends_on:
+      - "kafka"
 
   zookeeper:
     image: wurstmeister/zookeeper
@@ -55,7 +62,7 @@ services:
       - "9092:9092"
     hostname: kafka
     environment:
-      KAFKA_CREATE_TOPICS: "events:1:1" # topic:partition:replicas
+      KAFKA_CREATE_TOPICS: "events:1:1,event_log:1:1" # topic:partition:replicas
       KAFKA_ADVERTISED_HOST_NAME: acit-3855-lab6-duppin.westus3.cloudapp.azure.com # docker-machine ip
       KAFKA_LISTENERS: INSIDE://:29092,OUTSIDE://:9092
       KAFKA_INTER_BROKER_LISTENER_NAME: INSIDE

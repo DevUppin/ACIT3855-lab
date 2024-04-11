@@ -200,6 +200,8 @@ from apscheduler.schedulers.background import BackgroundScheduler
 from stats import Stats, Base
 from flask import jsonify
 from flask_cors import CORS
+from pykafka import KafkaClient
+import time
 # from dateutil import parser
 # from datetime import datetime
 import pytz
@@ -209,6 +211,11 @@ import pytz
 
 with open('app_conf.yml', 'r') as f:
     app_config = yaml.safe_load(f.read())
+
+kafka_server = app_config['events']['hostname']
+kafka_port = app_config['events']['port']
+topic_events = app_config['events']['topic1']
+topic_event_log = app_config['events']['topic2']
 
 # user_registration_url = app_config['eventstore1']['url']
 # image_upload_url = app_config['eventstore2']['url']
@@ -225,6 +232,42 @@ with open('log_conf.yml', 'r') as f:
 
 logger = logging.getLogger('basicLogger')
 
+client = None
+producer_event_log = None
+
+def connect_to_kafka():
+    """Connect to Kafka"""
+    global client, producer
+    max_retries = app_config['max_retries']
+    current_retry = 0
+    while current_retry < max_retries:
+        try:
+            client = KafkaClient(hosts=f'{kafka_server}:{kafka_port}')
+            topic_two = client.topics[str.encode(topic_event_log)]
+            producer_event_log = topic_two.get_sync_producer()
+            logger.info("Connected to Kafka")
+            msg = {
+                "type": "event_log",
+                "datetime": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+                "payload": {
+                    "message": "Proccessor service connected to Kafka and is ready to proccess messages from events topic",
+                    "message_code": "0003"
+                }
+            }
+            msg_str = json.dumps(msg)
+            producer_event_log.produce(msg_str.encode('utf-8'))
+            break  # Exit loop if connection successful
+        except Exception as e:
+            logger.error(f"Error connecting to Kafka: {e}")
+            current_retry += 1
+            logger.info(f"Retrying connection to Kafka. Retry count: {current_retry}")
+            time.sleep(5)  # Wait for 5 seconds before retrying
+
+    if current_retry == max_retries:
+        logger.error("Failed to connect to Kafka after maximum retries. Exiting.")
+        exit(1)
+
+connect_to_kafka()
 
 def populate_stats():
     """ Periodically update stats """
@@ -316,6 +359,18 @@ def populate_stats():
                 logger.debug(f"Updated statistics: {current_stats.to_dict()}")
             else:
                 logger.error(f"Failed to get events. Status codes: {response1.status_code}, {response2.status_code}")
+
+            if total_events > app_config['threshold']:
+                msg = {
+                    "type": "event_log",
+                    "datetime": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+                    "payload": {
+                        "message": "Threshold of configurable number of events exceeded during periodic processing",
+                        "message_code": "0004"
+                    }
+                }
+                msg_str = json.dumps(msg)
+                producer_event_log.produce(msg_str.encode('utf-8'))
         except Exception as e:
             logger.error(f"Error querying Data Store Service: {e}")
 

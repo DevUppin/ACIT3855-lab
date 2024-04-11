@@ -7,3 +7,9 @@ eventstore1:
   url: 'http://localhost:8090/user-registration?start_timestamp={formatted_last_update}&end_timestamp={current_datetime}'
 eventstore2:
   url: 'http://localhost:8090/image-upload?start_timestamp={formatted_last_update}&end_timestamp={current_datetime}'
+events:
+  hostname: acit-3855-lab6-duppin.westus3.cloudapp.azure.com
+  port: 9092
+  topic1: events
+  topic2: event_log
+threshold: 25

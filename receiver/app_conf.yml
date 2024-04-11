@@ -6,5 +6,6 @@ imageUpload:
 events:
   hostname: acit-3855-lab6-duppin.westus3.cloudapp.azure.com
   port: 9092
-  topic: events
+  topic1: events
+  topic2: event_log
 max_retries: 3

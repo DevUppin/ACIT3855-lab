@@ -231,7 +231,8 @@ def process_messages():
     while current_retry < max_retries:
         try:
             client = KafkaClient(hosts=hostname)
-            topic = client.topics[str.encode(app_config["events"]["topic"])]
+            topic = client.topics[str.encode(app_config["events"]["topic1"])]
+            topic_two = client.topics[str.encode(app_config["events"]["topic2"])]
 
             # Create a consumer on a consumer group, that only reads new messages
             # (uncommitted messages) when the service re-starts (i.e., it doesn't
@@ -240,8 +241,22 @@ def process_messages():
                                                  reset_offset_on_start=False,
                                                  auto_offset_reset=OffsetType.LATEST)
 
+            producer = topic_two.get_sync_producer()            
+
             # This is blocking - it will wait for a new message
             logger.info(f"Connected to kafka")
+
+            message = {
+                "type": "event_log",
+                "datetime": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+                "payload": {
+                    "message": "Storage service connected to Kafka and is ready to consume messages from the events topic",
+                    "message_code": "0002"
+                }
+            }
+            msg_str = json.dumps(message)
+            producer.produce(msg_str.encode('utf-8'))
+
             for msg in consumer:
                 msg_str = msg.value.decode('utf-8')
                 msg = json.loads(msg_str)

@@ -19,7 +19,8 @@ user_Registration = app_config['userRegistration']['url']
 image_Upload = app_config['imageUpload']['url']
 kafka_server = app_config['events']['hostname']
 kafka_port = app_config['events']['port']
-topic_events = app_config['events']['topic']
+topic_events = app_config['events']['topic1']
+topic_event_log = app_config['events']['topic2']
 
 with open('log_conf.yml', 'r') as f:
     log_config = yaml.safe_load(f.read())
@@ -69,7 +70,19 @@ def connect_to_kafka():
             client = KafkaClient(hosts=f'{kafka_server}:{kafka_port}')
             topic = client.topics[str.encode(topic_events)]
             producer = topic.get_sync_producer()
+            topic_two = client.topics[str.encode(topic_event_log)]
+            producer_event_log = topic_two.get_sync_producer()
             logger.info("Connected to Kafka")
+            msg = {
+                "type": "event_log",
+                "datetime": datetime.datetime.now().strftime("%Y-%m-%dT%H:%M:%S"),
+                "payload": {
+                    "message": "Receiver service connected to Kafka and is ready to receive messages on its RESTful API",
+                    "message_code": "0001"
+                }
+            }
+            msg_str = json.dumps(msg)
+            producer_event_log.produce(msg_str.encode('utf-8'))
             break  # Exit loop if connection successful
         except Exception as e:
             logger.error(f"Error connecting to Kafka: {e}")

@@ -1,0 +1,40 @@
+openapi: 3.0.0
+info:
+  title: Event Logger Service API
+  description: Event Logging Management System API
+  contact:
+    email: devuppin@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- url: /
+tags:
+- name: events
+  description: Operations related to event logging
+paths:
+  /events_stats:
+    get:
+      tags:
+      - events
+      summary: Get event statistics
+      operationId: app.events_stats
+      responses:
+        '200':
+          description: Successfully returned event statistics
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  "0003":
+                    type: integer
+                    description: Number of events with message code "0003"
+                  "0004":
+                    type: integer
+                    description: Number of events with message code "0004"
+        '500':
+          description: Internal Server Error
+
+          
