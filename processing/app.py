@@ -237,7 +237,7 @@ producer_event_log = None
 
 def connect_to_kafka():
     """Connect to Kafka"""
-    global client, producer
+    global client, producer_event_log
     max_retries = app_config['max_retries']
     current_retry = 0
     while current_retry < max_retries:
@@ -300,6 +300,7 @@ def populate_stats():
         current_datetime_obj = datetime.datetime.now()
         current_datetime = current_datetime_obj.strftime("%Y-%m-%dT%H:%M:%S")
         print(type(current_datetime))
+        total_events = None
         try:
         # response1 = requests.get(f'http://127.0.0.1:8090/user-registration?start_timestamp={formatted_last_update}&end_timestamp={current_datetime}')
         # response2 = requests.get(f'http://127.0.0.1:8090/image-upload?start_timestamp=2016-08-30T09:12:33&end_timestamp={current_datetime}')
