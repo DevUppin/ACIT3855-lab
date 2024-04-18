@@ -91,7 +91,7 @@ def consume_events():
     while current_retry < max_retries:
         try:
             client = KafkaClient(hosts=hostname)
-            topic = client.topics[str.encode(app_config["events"]["topic1"])]
+            topic = client.topics[str.encode(topic_events)]
 
             # Create a consumer on a consumer group, that only reads new messages
             # (uncommitted messages) when the service re-starts (i.e., it doesn't
