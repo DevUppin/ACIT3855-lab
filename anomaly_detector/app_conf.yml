@@ -1,0 +1,13 @@
+version: 1
+datastore:
+  filename: anomaly.db
+scheduler:
+  period_sec: 5
+events:
+  hostname: acit-3855-lab6-duppin.westus3.cloudapp.azure.com
+  port: 9092
+  topic1: events
+  topic2: event_log
+threshold_a1: 35
+threshold_a2: "500kb"
+max_retries: 3
