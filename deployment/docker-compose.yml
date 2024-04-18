@@ -47,6 +47,13 @@ services:
     depends_on:
       - "kafka"
 
+  anomaly_detector:
+    image: anomaly_detector:latest
+    ports:
+      - "8130:8130"
+    depends_on:
+      - "kafka"
+      
   zookeeper:
     image: wurstmeister/zookeeper
     ports:
